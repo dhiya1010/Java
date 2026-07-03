@@ -1,0 +1,58 @@
+class Register{
+
+   
+    private String name = "Dhiya";
+    private String email = "dhiya@gmail.com";
+    private String plan = "Monthly";
+    private int fee = 500;
+
+
+    public void registerUser() {
+        System.out.println("User Registration Successful");
+        System.out.println("Name: " + name);
+        System.out.println("Email: " + email);
+    }
+
+  
+    public void displayPlan() {
+
+        int registrationCharge = 50;
+        int totalFee = fee + registrationCharge; 
+
+        System.out.println("\nSelected Plan: " + plan);
+        System.out.println("Subscription Fee: Rs." + fee);
+        System.out.println("Registration Charge: Rs." + registrationCharge);
+        System.out.println("Total Amount: Rs." + totalFee);
+
+        if (totalFee > 300) { 
+            System.out.println("Annual Membership");
+        } else {
+            System.out.println("Monthly Membership");
+        }
+    }
+
+   
+    public void showPackages() {
+
+        String[] packages = {
+            "Basic Package",
+            "Standard Package",
+            "Premium Package"
+        };
+
+        System.out.println("\nAvailable Packages:");
+
+        for (int i = 0; i < packages.length; i++) { 
+            System.out.println(packages[i]);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        Register r = new Register();
+
+        r.registerUser();
+        r.displayPlan();
+        r.showPackages();
+    }
+}
