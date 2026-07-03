@@ -1,0 +1,84 @@
+import java.util.Scanner;
+
+class Travel {
+
+    String name;
+    String destination;
+    int amount;
+    String packageName;
+
+ 
+    Travel() {
+    }
+
+    Travel(String n, String d, int a) {
+        name = n;
+        destination = d;
+        amount = a;
+
+
+        if (amount < 3000)
+            packageName = "Basic Package";
+        else if (amount < 7000)
+            packageName = "Standard Package";
+        else
+            packageName = "Premium Package";
+    }
+
+
+    void display() {
+        System.out.println("\nCustomer Name : " + name);
+        System.out.println("Destination   : " + destination);
+        System.out.println("Amount        : Rs." + amount);
+        System.out.println("Package       : " + packageName);
+    }
+
+ 
+    void display(String guide) {
+        display();
+        System.out.println("Guide         : " + guide);
+    }
+
+    public static void main(String args[]) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter Number of Customers: ");
+        int n = sc.nextInt();
+        sc.nextLine();
+
+   
+        Travel t[] = new Travel[n];
+
+
+        for (int i = 0; i < n; i++) {
+
+            System.out.println("\nCustomer " + (i + 1));
+
+            System.out.print("Enter Name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Enter Destination: ");
+            String destination = sc.nextLine();
+
+            System.out.print("Enter Amount: ");
+            int amount = sc.nextInt();
+            sc.nextLine();
+
+          
+            t[i] = new Travel(name, destination, amount);
+        }
+
+        System.out.println("\n------ Booking Details ------");
+
+
+        for (int i = 0; i < n; i++) {
+            t[i].display();
+        }
+
+        System.out.println("\n------ With Guide ------");
+        t[0].display("John");
+
+        sc.close();
+    }
+}
