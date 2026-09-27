@@ -1,0 +1,150 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Scanner;
+
+class TravelBooking {
+    String name;
+    int age;
+    String from;
+    String to;
+    String vehicle;
+
+    TravelBooking(String name, int age, String from, String to, String vehicle) {
+        this.name = name;
+        this.age = age;
+        this.from = from;
+        this.to = to;
+        this.vehicle = vehicle;
+    }
+
+    public String toString() {
+        return "Passenger: " + name +
+               " | Age: " + age +
+               " | From: " + from +
+               " | To: " + to +
+               " | Vehicle: " + vehicle;
+    }
+}
+
+class TravelManagement {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        ArrayList<TravelBooking> bookings = new ArrayList<>();
+        HashSet<String> destinations = new HashSet<>();
+        HashMap<String, TravelBooking> bookingMap = new HashMap<>();
+
+        System.out.println("===== TRAVEL MANAGEMENT SYSTEM =====");
+
+        System.out.print("Enter number of bookings: ");
+        int n = sc.nextInt();
+        sc.nextLine();
+
+        for (int i = 0; i < n; i++) {
+
+            System.out.println("\nBooking " + (i + 1));
+
+            System.out.print("Enter passenger name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Enter age: ");
+            int age = sc.nextInt();
+            sc.nextLine();
+
+            System.out.print("Enter starting location: ");
+            String from = sc.nextLine();
+
+            System.out.print("Enter destination: ");
+            String to = sc.nextLine();
+
+            System.out.println("Select Vehicle:");
+            System.out.println("1. Car");
+            System.out.println("2. Van");
+            System.out.println("3. Mini Bus");
+
+            System.out.print("Enter choice: ");
+            int choice = sc.nextInt();
+            sc.nextLine();
+
+            String vehicle;
+
+            if (choice == 1) {
+                vehicle = "Car";
+            } else if (choice == 2) {
+                vehicle = "Van";
+            } else {
+                vehicle = "Mini Bus";
+            }
+
+            TravelBooking booking =
+                new TravelBooking(name, age, from, to, vehicle);
+
+            bookings.add(booking);
+            destinations.add(to);
+            bookingMap.put(name, booking);
+        }
+
+        System.out.println("\n===== ALL BOOKINGS =====");
+
+        for (TravelBooking booking : bookings) {
+            System.out.println(booking);
+        }
+
+        System.out.println("\n===== AVAILABLE DESTINATIONS =====");
+
+        for (String destination : destinations) {
+            System.out.println(destination);
+        }
+
+        System.out.println("\n===== SEARCH BOOKING =====");
+
+        System.out.print("Enter passenger name: ");
+        String searchName = sc.nextLine();
+
+        if (bookingMap.containsKey(searchName)) {
+            System.out.println(bookingMap.get(searchName));
+        } else {
+            System.out.println("No booking found.");
+        }
+
+        System.out.println("\n===== CANCEL BOOKING =====");
+
+        System.out.print("Enter passenger name to cancel: ");
+        String cancelName = sc.nextLine();
+
+        if (bookingMap.containsKey(cancelName)) {
+
+            TravelBooking cancelled =
+                bookingMap.remove(cancelName);
+
+            bookings.remove(cancelled);
+
+            System.out.println(
+                "Booking cancelled successfully for "
+                + cancelName
+            );
+
+        } else {
+            System.out.println("No booking found.");
+        }
+
+        System.out.println("\n===== UPDATED BOOKINGS =====");
+
+        Iterator<TravelBooking> iterator =
+            bookings.iterator();
+
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+
+        System.out.println("\n===== TRAVEL SUMMARY =====");
+        System.out.println("Total active bookings: " + bookings.size());
+        System.out.println("Number of destinations: " + destinations.size());
+
+        sc.close();
+    }
+}
