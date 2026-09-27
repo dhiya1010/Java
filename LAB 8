@@ -1,0 +1,539 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.*;
+
+class TravelManager extends JFrame {
+
+    private JTextField txtId, txtName, txtDestination, txtDate, txtPersons;
+    private JTable table;
+    private DefaultTableModel model;
+    private Connection conn;
+
+    public TravelManager() {
+
+        setTitle("Travel Management System");
+
+        setSize(800, 550);
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        setLocationRelativeTo(null);
+
+        setLayout(new BorderLayout(10, 10));
+
+        initDB();
+
+        initUI();
+
+        loadData();
+    }
+
+    private void initDB() {
+
+        try {
+               
+
+            conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/travelmanagement",
+                    "root",
+                    "MySQL@12345"
+            );
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Database Error: " + e.getMessage()
+            );
+        }
+    }
+
+    private void initUI() {
+
+        JPanel formPanel = new JPanel(
+                new GridLayout(5, 2, 5, 5)
+        );
+
+        formPanel.setBorder(
+                BorderFactory.createTitledBorder("Travel Booking Details")
+        );
+
+        formPanel.add(new JLabel("Booking ID:"));
+
+        txtId = new JTextField();
+
+        txtId.setEditable(false);
+
+        formPanel.add(txtId);
+
+        formPanel.add(new JLabel("Passenger Name:"));
+
+        txtName = new JTextField();
+
+        formPanel.add(txtName);
+
+        formPanel.add(new JLabel("Destination:"));
+
+        txtDestination = new JTextField();
+
+        formPanel.add(txtDestination);
+
+        formPanel.add(new JLabel("Travel Date (YYYY-MM-DD):"));
+
+        txtDate = new JTextField();
+
+        formPanel.add(txtDate);
+
+        formPanel.add(new JLabel("Number of Persons:"));
+
+        txtPersons = new JTextField();
+
+        formPanel.add(txtPersons);
+
+
+        JPanel btnPanel = new JPanel(
+                new FlowLayout(FlowLayout.CENTER, 10, 10)
+        );
+
+        JButton btnAdd = new JButton("Insert");
+
+        JButton btnUpdate = new JButton("Update");
+
+        JButton btnDelete = new JButton("Delete");
+
+        JButton btnRefresh = new JButton("Refresh");
+
+        JButton btnClear = new JButton("Clear");
+
+        btnPanel.add(btnAdd);
+
+        btnPanel.add(btnUpdate);
+
+        btnPanel.add(btnDelete);
+
+        btnPanel.add(btnRefresh);
+
+        btnPanel.add(btnClear);
+
+
+        JPanel topPanel = new JPanel(
+                new BorderLayout()
+        );
+
+        topPanel.add(formPanel, BorderLayout.CENTER);
+
+        topPanel.add(btnPanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
+
+
+        model = new DefaultTableModel(
+                new String[]{
+                        "ID",
+                        "Passenger Name",
+                        "Destination",
+                        "Travel Date",
+                        "Persons"
+                },
+                0
+        );
+
+        table = new JTable(model);
+
+        add(
+                new JScrollPane(table),
+                BorderLayout.CENTER
+        );
+
+
+        btnAdd.addActionListener(
+                e -> insertBooking()
+        );
+
+        btnUpdate.addActionListener(
+                e -> updateBooking()
+        );
+
+        btnDelete.addActionListener(
+                e -> deleteBooking()
+        );
+
+        btnRefresh.addActionListener(
+                e -> loadData()
+        );
+
+        btnClear.addActionListener(
+                e -> clearFields()
+        );
+
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+
+            int row = table.getSelectedRow();
+
+            if (row != -1) {
+
+                txtId.setText(
+                        model.getValueAt(row, 0).toString()
+                );
+
+                txtName.setText(
+                        model.getValueAt(row, 1).toString()
+                );
+
+                txtDestination.setText(
+                        model.getValueAt(row, 2).toString()
+                );
+
+                txtDate.setText(
+                        model.getValueAt(row, 3).toString()
+                );
+
+                txtPersons.setText(
+                        model.getValueAt(row, 4).toString()
+                );
+            }
+        });
+    }
+
+
+    private void insertBooking() {
+
+        String name = txtName.getText().trim();
+
+        String destination =
+                txtDestination.getText().trim();
+
+        String date =
+                txtDate.getText().trim();
+
+        String personsText =
+                txtPersons.getText().trim();
+
+
+        if (name.isEmpty() ||
+                destination.isEmpty() ||
+                date.isEmpty() ||
+                personsText.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter all booking details."
+            );
+
+            return;
+        }
+
+
+        String sql =
+                "INSERT INTO bookings " +
+                "(passenger_name, destination, travel_date, persons) " +
+                "VALUES (?, ?, ?, ?)";
+
+
+        try (PreparedStatement pstmt =
+                     conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, name);
+
+            pstmt.setString(2, destination);
+
+            pstmt.setDate(
+                    3,
+                    Date.valueOf(date)
+            );
+
+            pstmt.setInt(
+                    4,
+                    Integer.parseInt(personsText)
+            );
+
+            pstmt.executeUpdate();
+
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Booking inserted successfully."
+            );
+
+            clearFields();
+
+            loadData();
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Insert Error: " + e.getMessage()
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter date as YYYY-MM-DD and persons as a number."
+            );
+        }
+    }
+
+
+    private void loadData() {
+
+        model.setRowCount(0);
+
+        String sql =
+                "SELECT * FROM bookings";
+
+
+        try (
+                Statement stmt = conn.createStatement();
+
+                ResultSet rs =
+                        stmt.executeQuery(sql)
+        ) {
+
+            while (rs.next()) {
+
+                model.addRow(
+                        new Object[]{
+                                rs.getInt("id"),
+
+                                rs.getString("passenger_name"),
+
+                                rs.getString("destination"),
+
+                                rs.getDate("travel_date"),
+
+                                rs.getInt("persons")
+                        }
+                );
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Read Error: " + e.getMessage()
+            );
+        }
+    }
+
+
+    private void updateBooking() {
+
+        String idText =
+                txtId.getText().trim();
+
+
+        if (idText.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Select a booking from the table to update."
+            );
+
+            return;
+        }
+
+
+        String name =
+                txtName.getText().trim();
+
+        String destination =
+                txtDestination.getText().trim();
+
+        String date =
+                txtDate.getText().trim();
+
+        String personsText =
+                txtPersons.getText().trim();
+
+
+        if (name.isEmpty() ||
+                destination.isEmpty() ||
+                date.isEmpty() ||
+                personsText.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter all booking details."
+            );
+
+            return;
+        }
+
+
+        String sql =
+                "UPDATE bookings SET " +
+                "passenger_name = ?, " +
+                "destination = ?, " +
+                "travel_date = ?, " +
+                "persons = ? " +
+                "WHERE id = ?";
+
+
+        try (PreparedStatement pstmt =
+                     conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, name);
+
+            pstmt.setString(2, destination);
+
+            pstmt.setDate(
+                    3,
+                    Date.valueOf(date)
+            );
+
+            pstmt.setInt(
+                    4,
+                    Integer.parseInt(personsText)
+            );
+
+            pstmt.setInt(
+                    5,
+                    Integer.parseInt(idText)
+            );
+
+
+            int rows =
+                    pstmt.executeUpdate();
+
+
+            if (rows > 0) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Booking updated successfully."
+                );
+
+                clearFields();
+
+                loadData();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Booking not found."
+                );
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Update Error: " + e.getMessage()
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter date as YYYY-MM-DD and persons as a number."
+            );
+        }
+    }
+
+
+    private void deleteBooking() {
+
+        String idText =
+                txtId.getText().trim();
+
+
+        if (idText.isEmpty()) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Select a booking from the table to delete."
+            );
+
+            return;
+        }
+
+
+        int choice =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Are you sure you want to delete this booking?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+
+        if (choice != JOptionPane.YES_OPTION) {
+
+            return;
+        }
+
+
+        String sql =
+                "DELETE FROM bookings WHERE id = ?";
+
+
+        try (PreparedStatement pstmt =
+                     conn.prepareStatement(sql)) {
+
+            pstmt.setInt(
+                    1,
+                    Integer.parseInt(idText)
+            );
+
+
+            int rows =
+                    pstmt.executeUpdate();
+
+
+            if (rows > 0) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Booking deleted successfully."
+                );
+
+                clearFields();
+
+                loadData();
+
+            } else {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Booking not found."
+                );
+            }
+
+        } catch (SQLException e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Delete Error: " + e.getMessage()
+            );
+        }
+    }
+
+
+    private void clearFields() {
+
+        txtId.setText("");
+
+        txtName.setText("");
+
+        txtDestination.setText("");
+
+        txtDate.setText("");
+
+        txtPersons.setText("");
+
+        table.clearSelection();
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            TravelManager manager =
+                    new TravelManager();
+            manager.setVisible(true);
+        });
+    }
+}
