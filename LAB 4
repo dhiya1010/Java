@@ -1,0 +1,288 @@
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+class NoSeatsAvailableException extends Exception {
+    public NoSeatsAvailableException(String message) {
+        super(message);
+    }
+}
+
+class Passenger {
+    String name;
+    int age;
+    int seatNumber;
+    boolean confirmed;
+
+    Passenger(String name, int age) {
+        this.name = name;
+        this.age = age;
+        this.seatNumber = 0;
+        this.confirmed = false;
+    }
+
+    int getPriority() {
+        if (age <= 18 || age >= 50) {
+            return Thread.MAX_PRIORITY;
+        }
+        return Thread.NORM_PRIORITY;
+    }
+}
+
+class BookingThread extends Thread {
+    private Passenger passenger;
+    private static int nextSeat = 1;
+    private static int totalSeats;
+
+    BookingThread(Passenger passenger, int totalSeats) {
+        this.passenger = passenger;
+        BookingThread.totalSeats = totalSeats;
+        setPriority(passenger.getPriority());
+    }
+
+    public void run() {
+        bookSeat();
+    }
+
+    public static synchronized void bookSeatFor(Passenger passenger) {
+        if (nextSeat <= totalSeats) {
+            passenger.seatNumber = nextSeat;
+            passenger.confirmed = true;
+            nextSeat++;
+        }
+    }
+
+    private void bookSeat() {
+        bookSeatFor(passenger);
+    }
+
+    public static synchronized int getSeatsBooked() {
+        return nextSeat - 1;
+    }
+}
+
+class TravelManagement {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("===== TRAVEL MANAGEMENT SYSTEM =====");
+
+        System.out.print("\nEnter starting location: ");
+        String from = sc.nextLine();
+
+        System.out.print("Enter destination: ");
+        String to = sc.nextLine();
+
+        System.out.println("\nSelect Vehicle:");
+        System.out.println("1. Car - 5 seats");
+        System.out.println("2. Van - 8 seats");
+        System.out.println("3. Mini Bus - 12 seats");
+
+        int vehicleChoice;
+
+        try {
+            System.out.print("Enter vehicle choice: ");
+            vehicleChoice = sc.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid choice. Please enter a number.");
+            sc.close();
+            return;
+        }
+
+        String vehicle;
+        int capacity;
+
+        if (vehicleChoice == 1) {
+            vehicle = "Car";
+            capacity = 5;
+        } else if (vehicleChoice == 2) {
+            vehicle = "Van";
+            capacity = 8;
+        } else if (vehicleChoice == 3) {
+            vehicle = "Mini Bus";
+            capacity = 12;
+        } else {
+            System.out.println("Invalid vehicle choice.");
+            sc.close();
+            return;
+        }
+
+        int numberOfPassengers;
+
+        try {
+            System.out.print("\nEnter number of tickets: ");
+            numberOfPassengers = sc.nextInt();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid choice! Please enter the number of tickets.");
+            sc.close();
+            return;
+        }
+
+        if (numberOfPassengers <= 0) {
+            System.out.println("Invalid number of tickets.");
+            sc.close();
+            return;
+        }
+
+        Passenger[] passengers = new Passenger[numberOfPassengers];
+
+        sc.nextLine();
+
+        for (int i = 0; i < numberOfPassengers; i++) {
+
+            System.out.println("\nPassenger " + (i + 1));
+
+            System.out.print("Enter name: ");
+            String name = sc.nextLine();
+
+            int age;
+
+            try {
+                System.out.print("Enter age: ");
+                age = sc.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid age. Please enter a number.");
+                sc.close();
+                return;
+            }
+
+            sc.nextLine();
+
+            if (age <= 0) {
+                System.out.println("Invalid age.");
+                sc.close();
+                return;
+            }
+
+            passengers[i] = new Passenger(name, age);
+        }
+
+        System.out.println("\n===== BOOKING DETAILS =====");
+        System.out.println("From: " + from);
+        System.out.println("To: " + to);
+        System.out.println("Vehicle: " + vehicle);
+        System.out.println("Total Seats: " + capacity);
+        System.out.println("Passengers: " + numberOfPassengers);
+
+        if (numberOfPassengers > capacity) {
+
+            try {
+                throw new NoSeatsAvailableException(
+                    "Number of passengers exceeds vehicle capacity."
+                );
+            } catch (NoSeatsAvailableException e) {
+                System.out.println("\n" + e.getMessage());
+            }
+        }
+
+        for (int i = 0; i < numberOfPassengers - 1; i++) {
+            for (int j = 0; j < numberOfPassengers - i - 1; j++) {
+
+                if (passengers[j].getPriority() <
+                    passengers[j + 1].getPriority()) {
+
+                    Passenger temp = passengers[j];
+                    passengers[j] = passengers[j + 1];
+                    passengers[j + 1] = temp;
+                }
+            }
+        }
+
+        System.out.println("\n===== AGE-BASED BOOKING PRIORITY =====");
+
+        for (Passenger p : passengers) {
+
+            if (p.age <= 18 || p.age >= 50) {
+                System.out.println(
+                    p.name + " (" + p.age + ") - High Priority"
+                );
+            } else {
+                System.out.println(
+                    p.name + " (" + p.age + ") - Normal Priority"
+                );
+            }
+        }
+
+        System.out.println("\n===== BOOKING IN PROGRESS =====");
+
+        BookingThread[] threads =
+            new BookingThread[numberOfPassengers];
+
+        for (int i = 0; i < numberOfPassengers; i++) {
+
+            threads[i] =
+                new BookingThread(passengers[i], capacity);
+
+            System.out.println(
+                passengers[i].name +
+                " - Booking request received"
+            );
+
+            threads[i].start();
+        }
+
+        for (int i = 0; i < numberOfPassengers; i++) {
+
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                System.out.println("Booking interrupted.");
+            }
+        }
+
+        System.out.println("\n===== TICKET CONFIRMATION =====");
+
+        int confirmed = 0;
+        int waitlisted = 0;
+
+        for (Passenger p : passengers) {
+
+            if (p.confirmed) {
+                System.out.println(
+                    "Passenger: " + p.name
+                    + " | Age: " + p.age
+                    + " | Seat No: " + p.seatNumber
+                    + " | Status: Confirmed"
+                );
+                confirmed++;
+            }
+        }
+
+        if (numberOfPassengers > capacity) {
+
+            System.out.println("\n===== WAITLIST =====");
+
+            for (Passenger p : passengers) {
+
+                if (!p.confirmed) {
+                    System.out.println(
+                        "Passenger: " + p.name
+                        + " | Age: " + p.age
+                        + " | Status: No seat available"
+                    );
+                    waitlisted++;
+                }
+            }
+        }
+
+        System.out.println("\n===== BOOKING SUMMARY =====");
+        System.out.println("Journey      : " + from + " → " + to);
+        System.out.println("Vehicle      : " + vehicle);
+        System.out.println("Total Seats  : " + capacity);
+        System.out.println("Seats Booked : " + confirmed);
+        System.out.println("Seats Left   : " + (capacity - confirmed));
+
+        if (waitlisted > 0) {
+            System.out.println("Waitlisted   : " + waitlisted);
+            System.out.println("Status       : PARTIALLY CONFIRMED");
+        } else {
+            System.out.println("Waitlisted   : 0");
+            System.out.println("Status       : BOOKING CONFIRMED");
+        }
+
+        System.out.println("\nHave a safe journey!");
+
+        sc.close();
+    }
+}
