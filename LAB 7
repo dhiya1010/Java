@@ -1,0 +1,277 @@
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+class TravelManagement extends JFrame {
+
+    JTextField nameField, ageField, phoneField;
+    JComboBox<String> fromBox, toBox, vehicleBox;
+    JRadioButton male, female;
+    JCheckBox food, hotel;
+    JList<String> packageList;
+    JToggleButton insurance;
+    JTable table;
+
+    TravelManagement() {
+
+        setTitle("Travel Management System");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(null);
+
+        JLabel title = new JLabel("TRAVEL MANAGEMENT SYSTEM");
+        title.setBounds(270, 20, 300, 30);
+        add(title);
+
+        JLabel nameLabel = new JLabel("Name:");
+        nameLabel.setBounds(50, 70, 100, 30);
+        add(nameLabel);
+
+        nameField = new JTextField();
+        nameField.setBounds(150, 70, 200, 30);
+        add(nameField);
+
+        JLabel ageLabel = new JLabel("Age:");
+        ageLabel.setBounds(50, 110, 100, 30);
+        add(ageLabel);
+
+        ageField = new JTextField();
+        ageField.setBounds(150, 110, 200, 30);
+        add(ageField);
+
+        JLabel phoneLabel = new JLabel("Phone:");
+        phoneLabel.setBounds(50, 150, 100, 30);
+        add(phoneLabel);
+
+        phoneField = new JTextField();
+        phoneField.setBounds(150, 150, 200, 30);
+        add(phoneField);
+
+        JLabel fromLabel = new JLabel("From:");
+        fromLabel.setBounds(50, 190, 100, 30);
+        add(fromLabel);
+
+        fromBox = new JComboBox<>(new String[]{
+                "Bangalore",
+                "Kochi",
+                "Chennai",
+                "Mumbai"
+        });
+
+        fromBox.setBounds(150, 190, 200, 30);
+        add(fromBox);
+
+        JLabel toLabel = new JLabel("To:");
+        toLabel.setBounds(50, 230, 100, 30);
+        add(toLabel);
+
+        toBox = new JComboBox<>(new String[]{
+                "Goa",
+                "Delhi",
+                "Manali",
+                "Hyderabad"
+        });
+
+        toBox.setBounds(150, 230, 200, 30);
+        add(toBox);
+
+        JLabel vehicleLabel = new JLabel("Vehicle:");
+        vehicleLabel.setBounds(50, 270, 100, 30);
+        add(vehicleLabel);
+
+        vehicleBox = new JComboBox<>(new String[]{
+                "Bus",
+                "Train",
+                "Flight",
+                "Car"
+        });
+
+        vehicleBox.setBounds(150, 270, 200, 30);
+        add(vehicleBox);
+
+        JLabel genderLabel = new JLabel("Gender:");
+        genderLabel.setBounds(50, 310, 100, 30);
+        add(genderLabel);
+
+        male = new JRadioButton("Male");
+        male.setBounds(150, 310, 80, 30);
+        add(male);
+
+        female = new JRadioButton("Female");
+        female.setBounds(230, 310, 90, 30);
+        add(female);
+
+        ButtonGroup genderGroup = new ButtonGroup();
+        genderGroup.add(male);
+        genderGroup.add(female);
+
+        JLabel serviceLabel = new JLabel("Services:");
+        serviceLabel.setBounds(50, 350, 100, 30);
+        add(serviceLabel);
+
+        food = new JCheckBox("Food");
+        food.setBounds(150, 350, 80, 30);
+        add(food);
+
+        hotel = new JCheckBox("Hotel");
+        hotel.setBounds(230, 350, 80, 30);
+        add(hotel);
+
+        JLabel packageLabel = new JLabel("Package:");
+        packageLabel.setBounds(50, 390, 100, 30);
+        add(packageLabel);
+
+        packageList = new JList<>(new String[]{
+                "Budget",
+                "Standard",
+                "Premium"
+        });
+
+        JScrollPane packageScroll = new JScrollPane(packageList);
+        packageScroll.setBounds(150, 390, 200, 70);
+        add(packageScroll);
+
+        JLabel insuranceLabel = new JLabel("Insurance:");
+        insuranceLabel.setBounds(50, 470, 100, 30);
+        add(insuranceLabel);
+
+        insurance = new JToggleButton("OFF");
+        insurance.setBounds(150, 470, 100, 30);
+        add(insurance);
+
+        insurance.addActionListener(e -> {
+            if (insurance.isSelected()) {
+                insurance.setText("ON");
+            } else {
+                insurance.setText("OFF");
+            }
+        });
+
+        JButton bookButton = new JButton("BOOK NOW");
+        bookButton.setBounds(150, 515, 120, 35);
+        add(bookButton);
+
+        JLabel bookingLabel = new JLabel("BOOKING DETAILS");
+        bookingLabel.setBounds(470, 70, 150, 30);
+        add(bookingLabel);
+
+        String[] columns = {
+                "Name",
+                "Age",
+                "From",
+                "To",
+                "Vehicle"
+        };
+
+        DefaultTableModel model =
+                new DefaultTableModel(columns, 0);
+
+        table = new JTable(model);
+
+        JScrollPane tableScroll =
+                new JScrollPane(table);
+
+        tableScroll.setBounds(380, 110, 370, 250);
+        add(tableScroll);
+
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu("File");
+        JMenu helpMenu = new JMenu("Help");
+
+        JMenuItem clearItem = new JMenuItem("Clear");
+        JMenuItem exitItem = new JMenuItem("Exit");
+        JMenuItem aboutItem = new JMenuItem("About");
+
+        fileMenu.add(clearItem);
+        fileMenu.add(exitItem);
+
+        helpMenu.add(aboutItem);
+
+        menuBar.add(fileMenu);
+        menuBar.add(helpMenu);
+
+        setJMenuBar(menuBar);
+
+        bookButton.addActionListener(e -> {
+
+            if (nameField.getText().isEmpty()
+                    || ageField.getText().isEmpty()
+                    || phoneField.getText().isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please enter all details."
+                );
+
+                return;
+            }
+
+            String selectedPackage =
+                    packageList.getSelectedValue();
+
+            if (selectedPackage == null) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Please select a package."
+                );
+
+                return;
+            }
+
+            model.addRow(new Object[]{
+                    nameField.getText(),
+                    ageField.getText(),
+                    fromBox.getSelectedItem(),
+                    toBox.getSelectedItem(),
+                    vehicleBox.getSelectedItem()
+            });
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Travel booking successful!"
+            );
+        });
+
+        clearItem.addActionListener(e -> {
+
+            nameField.setText("");
+            ageField.setText("");
+            phoneField.setText("");
+
+            packageList.clearSelection();
+
+            male.setSelected(false);
+            female.setSelected(false);
+
+            food.setSelected(false);
+            hotel.setSelected(false);
+
+            insurance.setSelected(false);
+            insurance.setText("OFF");
+        });
+
+        exitItem.addActionListener(e -> {
+            System.exit(0);
+        });
+
+        aboutItem.addActionListener(e -> {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Travel Management System\n"
+                    + "Java Swing Application"
+            );
+        });
+
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+
+        new TravelManagement();
+    }
+}
+
