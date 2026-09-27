@@ -1,0 +1,137 @@
+import java.util.*;
+import java.util.stream.Collectors;
+
+class TravelBooking {
+    private String name;
+    private String destination;
+    private String vehicle;
+    private int age;
+    private double fare;
+
+    public TravelBooking(String name, String destination, String vehicle, int age, double fare) {
+        this.name = name;
+        this.destination = destination;
+        this.vehicle = vehicle;
+        this.age = age;
+        this.fare = fare;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public String getVehicle() {
+        return vehicle;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public double getFare() {
+        return fare;
+    }
+
+    @Override
+    public String toString() {
+        return name + " | " + destination + " | " + vehicle +
+               " | Age: " + age + " | Fare: Rs." + fare;
+    }
+}
+
+class TravelManagementSystem {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        List<TravelBooking> bookings = new ArrayList<>();
+
+        bookings.add(new TravelBooking("Anu", "Munnar", "Car", 22, 2500));
+        bookings.add(new TravelBooking("Rahul", "Goa", "Bus", 25, 1800));
+        bookings.add(new TravelBooking("Meera", "Munnar", "Car", 19, 2500));
+        bookings.add(new TravelBooking("Arjun", "Bangalore", "Train", 30, 1200));
+        bookings.add(new TravelBooking("Anu", "Munnar", "Car", 22, 2500));
+        bookings.add(new TravelBooking("Diya", "Goa", "Bus", 17, 1800));
+        bookings.add(new TravelBooking("Rohan", "Chennai", "Train", 45, 1500));
+        bookings.add(new TravelBooking("Sara", "Bangalore", "Flight", 28, 5500));
+
+        System.out.println("===== TRAVEL MANAGEMENT SYSTEM =====");
+
+        System.out.println("\nAll Travel Bookings:");
+        bookings.forEach(System.out::println);
+
+        System.out.println("\n1. Bookings for Munnar:");
+        bookings.stream()
+                .filter(b -> b.getDestination().equalsIgnoreCase("Munnar"))
+                .forEach(System.out::println);
+
+        System.out.println("\n2. Bookings Sorted by Fare:");
+        bookings.stream()
+                .sorted(Comparator.comparingDouble(TravelBooking::getFare))
+                .forEach(System.out::println);
+
+        System.out.println("\n3. Distinct Destinations:");
+        bookings.stream()
+                .map(TravelBooking::getDestination)
+                .distinct()
+                .forEach(System.out::println);
+
+        System.out.print("\nEnter number of bookings to display: ");
+        int n = sc.nextInt();
+
+        if (n <= 0) {
+            System.out.println("Invalid number. Enter a positive value.");
+        } else {
+
+            System.out.println("\n4. First " + n + " Bookings:");
+
+            bookings.stream()
+                    .limit(n)
+                    .forEach(System.out::println);
+        }
+
+        long totalBookings = bookings.stream()
+                .count();
+
+        System.out.println("\n5. Total Number of Bookings: " + totalBookings);
+
+        double totalFare = bookings.stream()
+                .mapToDouble(TravelBooking::getFare)
+                .sum();
+
+        System.out.println("6. Total Fare Collected: Rs." + totalFare);
+
+        double averageFare = bookings.stream()
+                .mapToDouble(TravelBooking::getFare)
+                .average()
+                .orElse(0);
+
+        System.out.println("7. Average Fare: Rs." + averageFare);
+
+        double highestFare = bookings.stream()
+                .mapToDouble(TravelBooking::getFare)
+                .max()
+                .orElse(0);
+
+        System.out.println("8. Highest Fare: Rs." + highestFare);
+
+        double lowestFare = bookings.stream()
+                .mapToDouble(TravelBooking::getFare)
+                .min()
+                .orElse(0);
+
+        System.out.println("9. Lowest Fare: Rs." + lowestFare);
+
+        System.out.println("\n10. Senior Citizen / Priority Travellers:");
+        bookings.stream()
+                .filter(b -> b.getAge() >= 50 || b.getAge() <= 18)
+                .forEach(System.out::println);
+
+        sc.close();
+    }
+}
