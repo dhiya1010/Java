@@ -1,0 +1,128 @@
+import java.util.Scanner;
+import travel.aTravelBooking;
+
+class Person {
+    String name;
+    int age;
+
+    Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    void displayDetails() {
+        System.out.println("\n----- Traveller Details -----");
+        System.out.println("Name        : " + name);
+        System.out.println("Age         : " + age);
+    }
+}
+
+class Traveller extends Person {
+    String destination;
+    int days;
+
+    Traveller(String name, int age, String destination, int days) {
+        super(name, age);
+        this.destination = destination;
+        this.days = days;
+    }
+
+    @Override
+    void displayDetails() {
+        super.displayDetails();
+        System.out.println("Destination : " + destination);
+        System.out.println("Trip Days   : " + days);
+    }
+}
+
+class Booking extends Traveller implements TravelBooking {
+    int budget;
+    int packagePrice;
+    String bookingStatus;
+
+    Booking(String name, int age, String destination, int days, int budget) {
+        super(name, age, destination, days);
+        this.budget = budget;
+    }
+
+    @Override
+    public void calculateBooking() {
+
+        if (destination.equalsIgnoreCase("Goa"))
+            packagePrice = 20000;
+        else if (destination.equalsIgnoreCase("Kerala"))
+            packagePrice = 18000;
+        else if (destination.equalsIgnoreCase("Manali"))
+            packagePrice = 30000;
+        else if (destination.equalsIgnoreCase("Kashmir"))
+            packagePrice = 45000;
+        else if (destination.equalsIgnoreCase("Dubai"))
+            packagePrice = 70000;
+        else
+            packagePrice = 0;
+
+        if (packagePrice == 0) {
+            bookingStatus = "Destination Not Available";
+        }
+        else if (budget >= packagePrice) {
+            bookingStatus = "Booking Confirmed";
+        }
+        else {
+            bookingStatus = "Booking Failed (Insufficient Budget)";
+        }
+    }
+
+    @Override
+    void displayDetails() {
+        super.displayDetails();
+
+        System.out.println("Budget         : Rs." + budget);
+        System.out.println("Package Price  : Rs." + packagePrice);
+        System.out.println("Booking Status : " + bookingStatus);
+    }
+}
+
+class TravelManagement {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("========== TRAVEL MANAGEMENT SYSTEM ==========");
+
+        System.out.print("Enter Traveller Name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter Age: ");
+        int age = sc.nextInt();
+        sc.nextLine();
+
+        System.out.println("\nAvailable Travel Packages");
+        System.out.println("------------------------------");
+        System.out.println("Goa      - Rs.20,000");
+        System.out.println("Kerala   - Rs.18,000");
+        System.out.println("Manali   - Rs.30,000");
+        System.out.println("Kashmir  - Rs.45,000");
+        System.out.println("Dubai    - Rs.70,000");
+
+        System.out.print("\nEnter Destination: ");
+        String destination = sc.nextLine();
+
+        System.out.print("Enter Number of Trip Days: ");
+        int days = sc.nextInt();
+
+        System.out.print("Enter Your Budget: ");
+        int budget = sc.nextInt();
+
+        Booking customer = new Booking(
+            name, age, destination, days, budget
+        );
+
+        customer.calculateBooking();
+
+        System.out.println("\n========== BOOKING DETAILS ==========");
+        customer.displayDetails();
+
+        sc.close();
+    }
+}
