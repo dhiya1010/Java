@@ -1,0 +1,180 @@
+index.jsp:
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Management System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Travel Management System</h1>
+
+        <p>Welcome to our Travel Management System.</p>
+
+        <p>Plan your trip by entering your travel details.</p>
+
+        <a href="register.jsp">
+            <button>Register for Travel</button>
+        </a>
+    </div>
+
+</body>
+</html>
+
+success.jsp :
+<%
+    String name = request.getParameter("name");
+    String email = request.getParameter("email");
+    String destination = request.getParameter("destination");
+    String persons = request.getParameter("persons");
+    String date = request.getParameter("date");
+%>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registration Successful</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Registration Successful</h1>
+
+        <h2>Travel Details</h2>
+
+        <p><b>Name:</b> <%= name %></p>
+        <p><b>Email:</b> <%= email %></p>
+        <p><b>Destination:</b> <%= destination %></p>
+        <p><b>Number of Persons:</b> <%= persons %></p>
+        <p><b>Travel Date:</b> <%= date %></p>
+
+        <a href="index.jsp">
+            <button>Back to Home</button>
+        </a>
+
+    </div>
+
+</body>
+</html>
+
+register.jsp :
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Travel Registration</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Travel Registration</h1>
+
+        <form action="success.jsp" method="post">
+
+            <label>Name:</label>
+            <input type="text" name="name" required>
+
+            <label>Email:</label>
+            <input type="email" name="email" required>
+
+            <label>Destination:</label>
+            <input type="text" name="destination" required>
+
+            <label>Number of Persons:</label>
+            <input type="number" name="persons" min="1" required>
+
+            <label>Travel Date:</label>
+            <input type="date" name="date" required>
+
+            <button type="submit">Submit</button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>
+
+style.css :
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 500px;
+    margin: 80px auto;
+    background-color: white;
+    padding: 30px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 10px gray;
+}
+
+h1 {
+    color: #333;
+}
+
+h2 {
+    color: #555;
+}
+
+p {
+    font-size: 16px;
+}
+
+form {
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+web.xml :
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+         http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+
+    <display-name>Travel Management System</display-name>
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+</web-app>
